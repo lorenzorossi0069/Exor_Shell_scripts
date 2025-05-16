@@ -4,7 +4,6 @@
 IFACE=wlan0
 WPA_SUPPLICANT_PATH=wpa_supplicant_p2p.conf
 
-
 function p2p_cleanUp {
 	#for TEMP_IFACE in $(wpa_cli interface | grep p2p-); do
 	#    echo "Removing $TEMP_IFACE"

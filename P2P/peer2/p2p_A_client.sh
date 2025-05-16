@@ -4,7 +4,7 @@ UNSPECIFIED=NN
 
 if (($# < 1)) ; then
 	DEV_NAME=$UNSPECIFIED
-	echo "searching for peers"
+	echo "searching for all peers"
 else
 	DEV_NAME=$1
 	echo "searching for peer with device_name=$DEV_NAME"
@@ -25,21 +25,20 @@ PEER_FOUND=""
 RESCAN=5
 
 while [ -z $PEER_FOUND ] ; do
+	#Any 5 times restart scan (p2p_find) to help in noisy environments
 	if [ $RESCAN -ge 5 ] ; then
-		#time to time restart scan (p2p_find) to help in noisy environments
 		wpa_cli -i $IFACE p2p_find
 		RESCAN=0
 	fi
 	RESCAN=$(($RESCAN+1))
 	
-	PEERS=$(wpa_cli -i $IFACE p2p_peers)
-	
 	echo "list of found peers:"
-	
+	PEERS=$(wpa_cli -i $IFACE p2p_peers)
+
 	for PEER in $PEERS ; do
 		INFO=$(wpa_cli -i $IFACE p2p_peer $PEER | grep "$DEV_NAME")
 		
-		if [[ $INFO =~ P2P-AW64 ]] || [[ $DEV_NAME == $UNSPECIFIED ]] ; then
+		if [[ $INFO =~ P2P-GO ]] || [[ $DEV_NAME == $UNSPECIFIED ]] ; then
 			PEER_FOUND=$PEER
 			INFO_DEV_NAME=$(wpa_cli -i $IFACE p2p_peer $PEER | grep "device_name")
 		fi

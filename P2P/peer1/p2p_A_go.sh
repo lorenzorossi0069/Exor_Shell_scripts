@@ -6,6 +6,7 @@ ifconfig $IFACE 201.202.203.1  netmask 255.255.255.0
 
 p2p_startWPAsupplicant
 
+#p2p_group_add sets up a GO manually (no negotiation)
 wpa_cli -i $IFACE p2p_group_add > /dev/null
 
 # Set group interface on this peer
@@ -21,7 +22,4 @@ echo "[GO] Connected by : $GROUP_IFACE"
 
 echo "[GO] Infos:  $GROUP_IFACE"
 wpa_cli -i $GROUP_IFACE status
-
-
-
 

@@ -7,7 +7,7 @@ BASE_S_IP=10.1.35.22
 
 DEV_TOOLS_DIR=$PWD
 NEW_IMAGE_AND_MODULES=$DEV_TOOLS_DIR/newImageAndModules
-NEW_MODULES=$NEW_IMAGE_AND_MODULES/newModules
+
 
 if [[ $# < 1 ]] ; then
 	echo "needs aguments: <arm32/arm64> <defconfig_file>"
@@ -74,20 +74,27 @@ make dtbs
 
 echo "copy all to $NEW_IMAGE_AND_MODULES"
 
-cp $DEV_TOOLS_DIR/targetUpdate_devHost.sh $NEW_IMAGE_AND_MODULES/targetUpdate_onTarget.sh
+cp $DEV_TOOLS_DIR/targetUpdate_devMaster.sh $NEW_IMAGE_AND_MODULES/targetUpdate_replicated.sh
 
 cp arch/arm64/boot/Image $NEW_IMAGE_AND_MODULES
 
-echo "prepare new modules target tree in $NEW_MODULES"
-make modules_install INSTALL_MOD_STRIP=1 INSTALL_MOD_PATH=$NEW_MODULES
+echo "prepare new modules target tree in $NEW_IMAGE_AND_MODULES"
+make modules_install INSTALL_MOD_STRIP=1 INSTALL_MOD_PATH=$NEW_IMAGE_AND_MODULES
 
 echo "preparing tar.gz"
+
+cd $NEW_IMAGE_AND_MODULES/lib/modules
+
+tar -czvf newModules.gz .
+
+mv newModules.gz ../../.
+
 cd $NEW_IMAGE_AND_MODULES
 
-tar -czvf modules.gz .
-rm -rf $NEW_MODULES
 
-cd $DEV_TOOLS_DIR
+echo "check untar"; read dummy
+rm -rf lib
+echo "check cleared"; read dummy
 
 echo "secure-copying whole $NEW_IMAGE_AND_MODULES to $TARGET_IP"
 sshpass -p "Exor123@" scp -r $NEW_IMAGE_AND_MODULES admin@$TARGET_IP:/mnt/data

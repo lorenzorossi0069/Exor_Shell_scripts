@@ -12,5 +12,9 @@ chown root:root pairingTestApp
 chmod +x pairingTestApp
 mv /mnt/data/pairingTestApp /home/admin
 
+chown root:root unpairingTestApp
+chmod +x unpairingTestApp
+mv /mnt/data/unpairingTestApp /home/admin
+
 /home/admin/switch_T_VerTo.sh new
 

@@ -1,0 +1,3 @@
+git_branch = EMC_Test_AX210
+
+https://bitbucket.org/exorint/imx6linux/src/EMC_Test_AX210/

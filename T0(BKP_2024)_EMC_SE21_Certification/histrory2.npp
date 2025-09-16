@@ -1,0 +1,500 @@
+   16  vi /etc/hostapd.conf 
+   17  vi /etc/hostapd.conf 
+   18  dmesg -c
+   19  dmesg -w
+   20  watch iw reg get
+   21  ./setAP.sh 
+   22  watch iw reg get
+   23  ./kill_all_wifi_modes.sh 
+   24  ./setAP.sh 
+   25  ./kill_all_wifi_modes.sh 
+   26  dmesg -c
+   27  dmesg -w
+   28  mount -o remount,rw 
+   29  mount -o remount,rw /
+   30  cd /boot/
+   31  ls -l
+   32  rm Image 
+   33  ls -la
+   34  mv /mnt/data/Image30 ./Image
+   35  ls -la
+   36  sync
+   37  reboot
+   38  dmesg -w
+   39  dmesg | grep DBG31
+   40  dmesg 
+   41  dmesg --notime /mnt/data/boot1.log
+   42  sudo su
+   43  ifconfig wlan0
+   44  cat setAP.sh 
+   45  ifconfig wlan0 111.112.113.1 netmask 255.255.255.0 up
+   46  ifconfig wlan0 down
+   47  ifconfig wlan0 up
+   48  iw reg get
+   49  iw reg get
+   50  ifconfig wlan0 down
+   51  ifconfig wlan0 up
+   52  mount -o remount,rw /
+   53  cd /boot/
+   54  ls -l
+   55  rm Image 
+   56  ls -l
+   57  mv /mnt/data/Image31 ./Image
+   58  ls -l
+   59  sync
+   60  reboot
+   61  dmesg -w
+   62  dmesg --notime > /mnt/data/boot1.log
+   63  dmesg -w
+   64  dmesg -c
+   65  dmesg -w
+   66  dmesg -w
+   67  dmesg --notime >/mnt/data/boot1.log
+   68  mount -o remount,rw /
+   69  cd /boot/
+   70  ls -l
+   71  rm Image 
+   72  ls -l
+   73  mv /mnt/data/Image31 ./Image
+   74  ls -l
+   75  sync
+   76  reboot
+   77  ls -l
+   78  rm Image 
+   79  mount -o remount,rw /
+   80  ls -l
+   81  rm Image 
+   82  ls -l
+   83  mv /mnt/data/Image .
+   84  ls -la
+   85  sync
+   86  reboot
+   87  dmesg -w
+   88  dmesg -w
+   89  dmesg --notime > /mnt/data/boot1.log
+   90  cat setAP.sh 
+   91   ifconfig wlan0
+   92   ifconfig wlan0 111.112.113.1 netmask 255.255.255.0 up
+   93  mount -o remount,rw /
+   94  cd /boot/
+   95  rm Image 
+   96  ls -l
+   97  mv /mnt/data/Image2 ./Image
+   98  ls -l
+   99  sync
+  100  reboot
+  101  cat setAP.sh 
+  102  ifconfig wlan0 up
+  103  dmesg-w
+  104  dmesg -w
+  105  dmesg --notime > /mnt/data/boot.log
+  106  dmesg -c
+  107  dmesg -w
+  108  dmesg -w
+  109  dmesg -w
+  110  mount -o remount,rw /
+  111  cd /boot/
+  112  ls -l
+  113  ls -l
+  114  rm Image 
+  115  ls -l
+  116  mv /mnt/data/Image ./Image
+  117  ls -lo
+  118  ls -l
+  119  sync
+  120  reboot
+  121  ifconfig wlan0 up
+  122  cd /boot/
+  123  mount -o remount,rw /
+  124  ls -l
+  125  rm Image 
+  126  ls -l
+  127  mv /mnt/data/Image4 ./Image
+  128  ls -l
+  129  sync
+  130  reboot
+  131  ifconfig wlan0 up
+  132  iw reg get
+  133  iw reg get
+  134  iw reg set IT
+  135  iw reg get
+  136  ifconfig wlan0 down
+  137  ifconfig wlan0 up
+  138  iw reg get
+  139  iw reg set US
+  140  iw reg get
+  141  ifconfig wlan0 down
+  142  iw reg get
+  143  iw reg get
+  144  ifconfig wlan0 up
+  145  iw reg get
+  146  iw reg set EU
+  147  ifconfig wlan0 down
+  148  ifconfig wlan0 up
+  149  iw reg get
+  150  iw reg set IT
+  151  ifconfig wlan0 down
+  152  ifconfig wlan0 up
+  153  iw reg get
+  154  reboot
+  155  dmesg -w
+  156  dmesg -w | grep DBG
+  157  dmesg -c
+  158  dmesg -w
+  159  up
+  160  ifconfig wlan0 up
+  161  cat dbgSetFlags.sh 
+  162  vi dbgSetFlags.sh 
+  163  dmesg | grep DBG
+  164  dmesg
+  165  dmesg --notime > /mnt/data/boot4.log
+  166  dmesg -c
+  167  dmesg -c
+  168  dmesg 
+  169  dmesg -w
+  170  dmesg -w
+  171  dmesg --notime > /mnt/data/wlan4up.log
+  172  mount -o remount,rw /
+  173  cd /boot/
+  174  ls -l
+  175  rm Image 
+  176  ls -l
+  177  mv /mnt/data/Image5 ./Image
+  178  ls -l
+  179  sync
+  180  reboot
+  181  dmesg
+  182  dmesg | grep DBG
+  183  dmesg | grep DBG
+  184  dmesg 
+  185  dmesg -c
+  186  dmesg -w
+  187  dmesg --notime > /mnt/data/UpLong0.log
+  188  dmesg 
+  189  dmesg -c
+  190  dmesg 
+  191  dmesg 
+  192  ifconfig wlan0 down
+  193  dmesg 
+  194  dmesg --notime > /mnt/data/Long0Down.log
+  195  dmesg
+  196  dmesg -c
+  197  dmesg 
+  198  dmesg 
+  199  ifconfig wlan0 up
+  200  dmesg
+  201  dmesg --notime > /mnt/data/Long1Up.log
+  202  dmesg
+  203  dmesg -c
+  204  dmesg 
+  205  dmesg 
+  206  dmesg --notime > /mnt/data/Long1Down.log
+  207  dmesg 
+  208  dmesg -c
+  209  dmesg 
+  210  dmesg 
+  211  dmesg 
+  212  dmesg --notime > /mnt/data/Long2Up.log
+  213  dmesg -c
+  214  dmesg 
+  215  dmesg --notime > /mnt/data/Long2Down.log
+  216  dmesg 
+  217  dmesg --notime > /mnt/data/Long2Down.log
+  218  mount -o remount,rw /
+  219  cd /boot/
+  220  ls -l
+  221  rm Image 
+  222  ls -l
+  223  mv /mnt/data/Image1 ./Image
+  224  ls -l
+  225  sync
+  226  reboot
+  227  iw reg get
+  228  watch iw reg get
+  229  vi /etc/hostapd.conf 
+  230  vi /etc/hostapd.conf 
+  231  cat setAP.sh 
+  232   ifconfig wlan0 111.112.113.1 netmask 255.255.255.0 up
+  233  hostapd -B /etc/hostapd.conf
+  234  udhcpd -S -I 111.112.113.1  /etc/udhcpd.conf
+  235  ifconfig wlan0 down
+  236  ifconfig wlan0 up
+  237  ./setAP.sh 
+  238  ./setAP.sh 
+  239  vi setAP.sh 
+  240  ./setAP.sh 
+  241  ./setAP.sh 
+  242  ./setAP.sh 
+  243  ./kill_all_wifi_modes.sh 
+  244  watch -n 1 iw reg get
+  245  cd /usr/sbin/
+  246  mv crda-unused  crda
+  247  mount -o remount,rw /
+  248  mv crda-unused  crda
+  249  watch -n 1 iw reg get
+  250  ifconfig wlan0
+  251  ifconfig wlan0 up
+  252  ifconfig wlan0
+  253  watch -n 1 iw reg get
+  254  ifconfig wlan0
+  255  ifconfig wlan0 up
+  256  watch -n 1 iw reg get
+  257  ifconfig wlan0 up
+  258  watch -n 1 iw reg get
+  259  ifconfig wlan0 down
+  260  ifconfig wlan0 up
+  261  watch -n 1 iw reg get
+  262  cd
+  263  cd ../admin/
+  264  ./kill_all_wifi_modes.sh 
+  265  crda
+  266  crda --version
+  267  mount -o remount,rw /
+  268  cd /boot/
+  269  ls -l
+  270  rm Image 
+  271  ls -l
+  272  mv /mnt/data/Image .
+  273  ls -l
+  274  sync
+  275  reboot
+  276  ./setAP.sh 
+  277  ./setAP.sh 
+  278  vi /etc/hostapd.conf 
+  279  vi /etc/udhcpd.conf 
+  280  ./setAP.sh 
+  281  ./setAP.sh 
+  282  vi /etc/udhcpd.conf 
+  283  ./kill_all_wifi_modes.sh 
+  284  ./setAP.sh 
+  285  ./setAP.sh 
+  286  ./kill_all_wifi_modes.sh 
+  287  ./setAP.sh 
+  288  ./setAP.sh 
+  289  ./setAP.sh 
+  290  ./setAP.sh 
+  291  vi setAP.sh 
+  292  vi setAP.sh 
+  293  ./setAP.sh 
+  294  vi /etc/udhcpd.conf 
+  295  vi setAP.sh 
+  296  vi /etc/hostapd.conf 
+  297  vi /etc/hostapd.conf 
+  298  ./setAP.sh 
+  299  vi /etc/hostapd.conf 
+  300  watch iw reg get
+  301  vi /etc/hostapd.conf 
+  302  vi /etc/hostapd.conf 
+  303  watch iw reg get
+  304  watch -n 1 iw reg get
+  305  vi /etc/hostapd.conf 
+  306  vi /etc/hostapd.conf 
+  307  watch -n 1 iw reg get
+  308  vi /etc/hostapd.conf 
+  309  watch -n 1 iw reg get
+  310  vi /etc/hostapd.conf 
+  311  watch -n 1 iw reg get
+  312  dmesg
+  313  watch -n 1 iw reg get
+  314  dmesg -w
+  315  ./kill_all_wifi_modes.sh 
+  316  ./setAP.sh 
+  317  dmesg -w
+  318  reboot
+  319  ./setAP.sh 
+  320  vi /etc/hostapd.conf 
+  321  vi /etc/hostapd.conf 
+  322  vi /etc/hostapd.conf 
+  323  ./setAP.sh 
+  324  ./setAP.sh 
+  325  ./kill_all_wifi_modes.sh 
+  326  mount -o remount,rw /
+  327  cd /boot/
+  328  ls -l
+  329  rm Image 
+  330  ls -l
+  331  mv /mnt/data/Image .
+  332  ls -l
+  333  sync
+  334  reboot
+  335  watch -n 1 iw reg get
+  336  vi /etc/udev/rules.d/exorint.rules
+  337  vi /etc/udev/rules.d/exorint.rules
+  338  cd /etc/EPAD
+  339  ls -la
+  340  cd /etc/network
+  341  ls -l
+  342  vi interfaces 
+  343  cd if-down.d/
+  344  ls -l
+  345  vi 01-epad-notify
+  346  dmesg -w
+  347  vi setAP.sh 
+  348  vi /etc/hostapd.conf 
+  349  vi /etc/EPAD/system.ini
+  350  mount -o remount,rw /
+  351  cd /boot/
+  352  ls -l
+  353  rm Image 
+  354  ls -l
+  355  mv /mnt/data/Image .
+  356  ls -la
+  357  sync
+  358  cat setAP.sh 
+  359   ifconfig wlan0 111.112.113.1 netmask 255.255.255.0 up
+  360  vi /etc/EPAD/system.ini
+  361   ifconfig wlan0 111.112.113.1 netmask 255.255.255.0 upifconfig wlan0 down
+  362   ifconfig wlan0 111.112.113.1 netmask 255.255.255.0 upifconfig wlan0 up
+  363   ifconfig wlan0 111.112.113.1 netmask 255.255.255.0 upifconfig wlan0 down
+  364   ifconfig wlan0 111.112.113.1 netmask 255.255.255.0 upifconfig wlan0 up
+  365   ifconfig wlan0 
+  366   ifconfig wlan0 down
+  367  vi /etc/EPAD/system.ini
+  368  vi /etc/EPAD/system.ini
+  369  crda
+  370  iw reg get
+  371  iw reg set US
+  372  iw reg get
+  373  ps aux | grep -i crda
+  374  iw reg get
+  375  iw reg get
+  376  ifconfig wlan0
+  377  ifconfig wlan0 down
+  378  ifconfig wlan0 up
+  379  iw reg get
+  380  reboot
+  381  dmesg -w
+  382  ifconfig wlan0 up
+  383  mount -o remount,rw /
+  384  cd /boot/
+  385  ls -la
+  386  rm Image 
+  387  ls -l
+  388  mv /mnt/data/Image .
+  389  ls -l
+  390  sync
+  391  reboot
+  392  dmesg
+  393  dmesg
+  394  dmesg
+  395  ifconfig wlan0 up
+  396  dmesg
+  397  cd /boot/
+  398  ls -l
+  399  rm Image 
+  400  mount -o remount,rw /
+  401  rm Image 
+  402  ls -l
+  403  mv /mnt/data/Image .
+  404  ls -l
+  405  sync
+  406  reboot
+  407  dmesg
+  408  ifconfig wlan0 up
+  409  dmesg
+  410  mount -o remount,rw /
+  411  cd /boot/
+  412  ls -l
+  413  ls -l
+  414  rm Image 
+  415  ls -l
+  416  mv /mnt/data/Image .
+  417  ls -l
+  418  sync
+  419  reboot
+  420  dmesg
+  421  ifconfig wlan0 up
+  422  dmesg
+  423  mount -o renount,rw /
+  424  mount -o remount,rw /
+  425  cd /boot/
+  426  ls -l
+  427  rm Image 
+  428  ls -l
+  429  mv /mnt/data/Image .
+  430  ls -l
+  431  sync
+  432  reboot
+  433  dmesg -w
+  434  dmesg -w
+  435  cat setAP.sh 
+  436  iw reg get
+  437  vi /etc/EPAD/system.ini
+  438  vi /etc/hostapd.conf 
+  439  cat setAP.sh 
+  440   ifconfig wlan0
+  441  ifconfig wlan0 111.112.113.1 netmask 255.255.255.0 up
+  442   hostapd -B /etc/hostapd.conf
+  443   udhcpd -S -I 111.112.113.1  /etc/udhcpd.conf
+  444  reboot
+  445  dmesg -w
+  446  vi /etc/EPAD/system.ini
+  447  iw reg get
+  448  ifconfig wlan0
+  449  cat setAP.sh 
+  450  ifconfig wlan0 111.112.113.1 netmask 255.255.255.0 up
+  451  iw reg get
+  452  cat setAP.sh 
+  453  iw reg get
+  454  iw reg get
+  455  ifconfig wlan0 down
+  456  ifconfig wlan0 up
+  457  iw reg get
+  458  cat setAP.sh 
+  459  vi /etc/hostapd.conf 
+  460  iw reg get
+  461  vi /etc/hostapd.conf 
+  462  vi /etc/EPAD/system.ini
+  463  iw reg get
+  464  cat setAP.sh 
+  465  vi /etc/hostapd.conf 
+  466  ps aux | grep hostapd
+  467  vi /etc/hostapd.conf 
+  468  vi /etc/hostapd.conf 
+  469  ./setAP.sh 
+  470  iw reg get
+  471  iw reg get
+  472  cat setAP.sh 
+  473  ifconfig wlan0 111.112.113.1 netmask 255.255.255.0 up
+  474  iw reg get
+  475  iw reg get
+  476  ifconfig wlan0 
+  477  ifconfig wlan0 down
+  478  ifconfig wlan0 
+  479  ifconfig wlan0 up
+  480  ifconfig wlan0 
+  481  iw reg get
+  482  vi /etc/EPAD/system.ini
+  483  vi /etc/hostapd.conf 
+  484  vi /etc/hostapd.conf 
+  485  vi /etc/hostapd.conf 
+  486  vi /etc/hostapd.conf 
+  487  vi /etc/hostapd.conf 
+  488  iw reg get
+  489  dmesg
+  490  iw reg get
+  491  iw reg get
+  492  iw reg get
+  493  watch iw reg get
+  494  watch iw reg get
+  495  iw list
+  496  watch iw reg get
+  497  dmesg -w
+  498  watch iw reg get
+  499  dmesg -w
+  500  reboot
+  501  ifconfig wlan0
+  502  ip a
+  503  ifconfig wlan0
+  504  cat setAP.sh 
+  505   ifconfig wlan0 
+  506   ifconfig wlan0 down
+  507   ifconfig wlan0 up
+  508  ip a
+  509  iw list
+  510  iw list
+  511  ifconfig wlan0 down
+  512  ifconfig wlan0 up
+  513  iw list
+  514  history
+  515  history > histrory2.npp

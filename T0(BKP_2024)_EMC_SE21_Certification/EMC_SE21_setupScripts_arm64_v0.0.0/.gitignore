@@ -1,0 +1,5 @@
+# Normal rules (sorted alphabetically)
+
+*.ko
+Image
+zImage

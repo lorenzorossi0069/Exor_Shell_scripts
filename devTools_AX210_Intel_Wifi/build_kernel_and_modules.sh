@@ -13,10 +13,9 @@ if [[ $# < 1 ]] ; then
 	echo "needs aguments: <arm32/arm64> <defconfig_file>"
 	echo "used argument lists are:"
 	
-	echo "1= UN89 AX210 Intel)		arm64 us04_xsafety_defconfig"
-        echo "2= UN89 AX210 Intel EMC)     arm64 us04_xsafety_EMC_Testing_defconfig"
-        echo "3= UN89 AX210 MagicSysRq)    arm64 us04_xsafety_MAGIC_SYSRQ_defconfig"
-
+	echo "1 = UN89 AX210 Intel)	   arm64 us04_xsafety_defconfig"
+        echo "2 = UN89 AX210 Intel EMC)    arm64 us04_xsafety_EMC_Testing_defconfig"
+	echo "3 = UN89 AX210 TESTS)        arm64 us04_xsafety_TEST02_defconfig"
 	echo
 	
 	echo "<defconfig_file> are found in arch/arm64/configs or arch/arm/configs"
@@ -33,7 +32,7 @@ case $1 in
 	DEFCONFIG_FILE=us04_xsafety_EMC_Testing_defconfig ;;
 	( 3 )
 	armHW=arm64
-	DEFCONFIG_FILE=us04_xsafety_MAGIC_SYSRQ_defconfig ;;
+	DEFCONFIG_FILE=us04_xsafety_TEST02_defconfig ;;
 esac
 	
 [[ -e $NEW_IMAGE_AND_MODULES ]] && echo "delete old stuff" && rm -rf $NEW_IMAGE_AND_MODULES 
@@ -91,12 +90,8 @@ mv newModules.gz ../../.
 
 cd $NEW_IMAGE_AND_MODULES
 
-
-echo "check untar"; read dummy
 rm -rf lib
-echo "check cleared"; read dummy
 
 echo "secure-copying whole $NEW_IMAGE_AND_MODULES to $TARGET_IP"
 sshpass -p "Exor123@" scp -r $NEW_IMAGE_AND_MODULES admin@$TARGET_IP:/mnt/data
-
 

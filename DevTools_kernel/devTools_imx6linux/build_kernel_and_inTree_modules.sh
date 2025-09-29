@@ -3,7 +3,7 @@
 trap exit 0 SIGINT
 
 TARGET_IP=10.1.35.22
-BASE_S_IP=10.1.35.22
+BASE_S_IP=10.1.35.20
 
 DEV_TOOLS_DIR=$PWD
 NEW_IMAGE_AND_MODULES=$DEV_TOOLS_DIR/newImageAndModules
@@ -14,13 +14,11 @@ if [[ $# < 1 ]] ; then
 	echo "used argument lists are:"
 	
 	echo "1 = UN89 AX210 Intel)	   arm64 us04_xsafety_defconfig"
-    echo "2 = UN89 AX210 Intel EMC)    arm64 us04_xsafety_EMC_Testing_defconfig"
+        echo "2 = UN89 AX210 Intel EMC)    arm64 us04_xsafety_EMC_Testing_defconfig"
 	echo "3 = UN89 AX210 TESTS)        arm64 us04_xsafety_TEST02_defconfig"
-	echo "4 = UN89 AX210 WTSN-10ms)    arm64 us04_wtsn_xsafety_defconfig"ee
+	echo "4 = UN89 AX210 WTSN-10ms)    arm64 us04_wtsn_xsafety_defconfig"
 	echo
 	
-	echo "<defconfig_file> are found in arch/arm64/configs or arch/arm/configs"
-	echo
         exit 1
 fi
 
@@ -35,8 +33,9 @@ case $1 in
 	armHW=arm64
 	DEFCONFIG_FILE=us04_xsafety_TEST02_defconfig ;;
 	( 4 )
-    armHW=arm64
-    DEFCONFIG_FILE=us04_wtsn_xsafety_defconfig ;;
+	armHW=arm64
+	DEFCONFIG_FILE=us04_wtsn_xsafety_defconfig ;;
+
 esac
 	
 [[ -e $NEW_IMAGE_AND_MODULES ]] && echo "delete old stuff" && rm -rf $NEW_IMAGE_AND_MODULES 
@@ -96,6 +95,12 @@ cd $NEW_IMAGE_AND_MODULES
 
 rm -rf lib
 
+echo "press ENTER to scp to $TARGET_IP and $BASE_S_IP"
+echo "     (or press Ctrl-C to avoid final scp phase)"
+read continueWithScp
+
 echo "secure-copying whole $NEW_IMAGE_AND_MODULES to $TARGET_IP"
 sshpass -p "Exor123@" scp -r $NEW_IMAGE_AND_MODULES admin@$TARGET_IP:/mnt/data
+sshpass -p "Exor123@" scp -r $NEW_IMAGE_AND_MODULES admin@$BASE_S_IP:/mnt/data
+
 

@@ -1,11 +1,11 @@
 #!/bin/bash
 
-#v1.0
+#v2.0
 
 cd $(dirname $0)
 
 LOG_PATH=/home/admin
-MAX_TIME=100
+MAX_TIME=50
 WAIT_WIFI=1
 
 connectionStatus=disconnected
@@ -18,8 +18,10 @@ if [[ ! -f "$LOG_PATH/testNumber.log" ]]; then
     echo "0" > "$LOG_PATH/testNumber.log"
 fi
 
-#execute this branch ONLY if no reboot process is already in execution
-if ps aux | grep reboot | grep -qv grep ; then
+#execute this branch ONLY if one reboot instance is found
+count=$(ps aux | grep reboot | grep -v grep | wc -l)
+if [[ $count -eq 1 ]] ; then
+
 	read -r dateSec_old < $LOG_PATH/dateSec.log
 	read -r test_number < $LOG_PATH/testNumber.log
 
@@ -29,7 +31,6 @@ if ps aux | grep reboot | grep -qv grep ; then
 		dateSec_new=$(date +%s)
 		delta_time=$((dateSec_new - dateSec_old))
 
-	        #if iw wlan0 link | grep -q SSID ; then
 	        if iw wlan0 station dump | grep -q rx ; then
 	                connectionStatus=connected
 	        else
@@ -49,7 +50,7 @@ if ps aux | grep reboot | grep -qv grep ; then
 
 	# log delay to file only if above threshold
 	if [[ $delta_time -gt $MAX_TIME ]] ; then
-	        echo "$(date): Test N $test_number had a delay of $delta_time sec (connectionStatus: $connectionStatus); " >> $LOG_PATH/tooLongReboots.log 
+	        echo "$(date): Test N=$test_number: delay=$delta_time sec (connectionStatus: $connectionStatus);[pid=$$; ppid=$PPID] " >> $LOG_PATH/tooLongReboots_4_B.log 
 	fi
 
 	#echo "Test $test_number:  $(date): pid=$$ and pid2=$PPID: DELTA TIME=$delta_time :$connectionStatus : ">>$LOG_PATH/dbgInfo.log

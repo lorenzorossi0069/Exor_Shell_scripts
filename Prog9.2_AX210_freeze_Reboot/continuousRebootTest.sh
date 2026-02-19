@@ -5,7 +5,7 @@
 cd $(dirname $0)
 
 LOG_PATH=/home/admin
-MAX_TIME=50
+MAX_TIME=0 #normally 50
 WAIT_WIFI=1
 
 connectionStatus=disconnected
@@ -50,7 +50,8 @@ if [[ $count -eq 1 ]] ; then
 
 	# log delay to file only if above threshold
 	if [[ $delta_time -gt $MAX_TIME ]] ; then
-	        echo "$(date): Test N=$test_number: delay=$delta_time sec (connectionStatus: $connectionStatus);[pid=$$; ppid=$PPID] " >> $LOG_PATH/tooLongReboots_4_B.log 
+	        echo "$(date): Test N=$test_number: delay=$delta_time sec (connectionStatus: $connectionStatus);[pid=$$; ppid=$PPID] " \
+		>> $LOG_PATH/tooLongReboots_opts0_NO_AP_waitxxsec.log 
 	fi
 
 	#echo "Test $test_number:  $(date): pid=$$ and pid2=$PPID: DELTA TIME=$delta_time :$connectionStatus : ">>$LOG_PATH/dbgInfo.log

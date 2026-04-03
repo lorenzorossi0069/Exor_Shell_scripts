@@ -19,5 +19,5 @@ rm -f  /run/wpa_supplicant/wlan0
 sudo ifconfig wlan0 172.27.72.2 netmask 255.255.255.0
 
 ##sleep 1
-sudo wpa_supplicant-openssl -B -i wlan0 -c wpa_supplicant.conf 
+sudo wpa_supplicant-openssl -B -i wlan0 -c wpa_supplicant_pairingTestApp.conf 
 

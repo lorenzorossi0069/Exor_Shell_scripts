@@ -1,3 +1,5 @@
+#!/bin/sh
+
 sudo pkill hostapd
 
 #pkill sends SIGTERM, but AP does not die immediately

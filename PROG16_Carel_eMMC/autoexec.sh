@@ -130,77 +130,87 @@ md5check MLO_RC1.img
 
 case "$flag" in
     $STATE_0 | $STATE_1 )
-		#error states: restore MLO original
+	#error states: restore MLO original
 
         psplash-write "MSG Recovering from failure..."
-		echo "Error ($flag): Recovering from failure"  >> $LOG_FILE
+	echo "Error ($flag): Recovering from failure"  >> $LOG_FILE
 
-		## MLO ORIG is written to /dev/mmcblk at offset 0x20000 i.e. 1K * 128
-		echo 0 > /sys/block/mmcblk1boot1/force_ro
-		dd if=${ROOTDIR}/MLO_ORIG.img of=/dev/mmcblk1 bs=1K seek=128 
+	## MLO ORIG is written to /dev/mmcblk at offset 0x20000 i.e. 1K * 128
+	echo 0 > /sys/block/mmcblk1boot1/force_ro
+	dd if=${ROOTDIR}/MLO_ORIG.img of=/dev/mmcblk1 bs=1K seek=128 
 		
-		# restore original flag
-		writeFlag $STATE_NONE
+	# restore original flag
+	writeFlag $STATE_NONE
         sync
         sleep 1
 
-		psplash-write "MSG FAILED, please reboot"
-		echo "Error ($flag): FAILED, restored original" >> $LOG_FILE
-		sleep 1
+	psplash-write "MSG FAILED, please reboot"
+	echo "Error ($flag): FAILED, restored original" >> $LOG_FILE
+	cd ..
+	umount $ROOTDIR
+	sleep 1
         ;;
 
     $STATE_2 )
         psplash-write "MSG OK, Restoring system"
-		echo "OK ($flag) Restoring system"  >> $LOG_FILE
+	echo "OK ($flag) Restoring system"  >> $LOG_FILE
 
-		## MLO orig is written to /dev/mmcblk at offset 0x20000 i.e. 1K * 128
-		echo 0 > /sys/block/mmcblk1boot1/force_ro
-		dd if=${ROOTDIR}/MLO_ORIG.img of=/dev/mmcblk1 bs=1K seek=128 
+	## MLO orig is written to /dev/mmcblk at offset 0x20000 i.e. 1K * 128
+	echo 0 > /sys/block/mmcblk1boot1/force_ro
+	dd if=${ROOTDIR}/MLO_ORIG.img of=/dev/mmcblk1 bs=1K seek=128 
         sync
         sleep 1
 
         psplash-write "MSG UPDATE NOT NECESSARY: Remove USB and reboot"
-        echo "Success ($flag). remove usb and reboot"  >> $LOG_FILE
-		sleep 1
+        echo "Update not necessary ($flag). remove usb and reboot"  >> $LOG_FILE
+	cd ..
+	umount $ROOTDIR
+	sleep 1
         ;;
 
     $STATE_3 )
         psplash-write "MSG OK, Restoring system"
-		echo "OK ($flag) Restoring system"  >> $LOG_FILE
+	echo "OK ($flag) Restoring system"  >> $LOG_FILE
 
-		## MLO orig is written to /dev/mmcblk at offset 0x20000 i.e. 1K * 128
-		echo 0 > /sys/block/mmcblk1boot1/force_ro
-		dd if=${ROOTDIR}/MLO_ORIG.img of=/dev/mmcblk1 bs=1K seek=128 
+	## MLO orig is written to /dev/mmcblk at offset 0x20000 i.e. 1K * 128
+	echo 0 > /sys/block/mmcblk1boot1/force_ro
+	dd if=${ROOTDIR}/MLO_ORIG.img of=/dev/mmcblk1 bs=1K seek=128 
         sync
         sleep 1
 
         psplash-write "MSG SUCCESS: Remove USB and reboot"
         echo "Success ($flag). remove usb and reboot"  >> $LOG_FILE
-		sleep 1
+	cd ..
+	umount $ROOTDIR
+	sleep 1
         ;;
 
     *)    
-		# INITIAL NO-STATE
-		psplash-write "MSG Starting update. wait..."
-		echo "(state $flag): Starting update..." >> $LOG_FILE				
+	# INITIAL NO-STATE
+	psplash-write "MSG Starting update. wait..."
+	echo "(state $flag): Starting update..." >> $LOG_FILE				
 
-		## WRITING FW FILES TO BOOT1 area of eMMC
-		echo 0 > /sys/block/mmcblk1boot1/force_ro
-		dd if=${ROOTDIR}/DCP00.bin of=/dev/mmcblk1boot1 bs=1K seek=1024
-		dd if=${ROOTDIR}/DCP02.bin of=/dev/mmcblk1boot1 bs=1K seek=1044
+	## WRITING FW FILES TO BOOT1 area of eMMC
+	echo 0 > /sys/block/mmcblk1boot1/force_ro
+	dd if=${ROOTDIR}/DCP00.bin of=/dev/mmcblk1boot1 bs=1K seek=1024
+	dd if=${ROOTDIR}/DCP02.bin of=/dev/mmcblk1boot1 bs=1K seek=1044
 
-		## WRITING MLO to /dev/mmcblk at offset 0x20000 (i.e. 1K * 128)
-		dd if=${ROOTDIR}/MLO_RC1.img of=/dev/mmcblk1 bs=1K seek=128 
+	## WRITING MLO to /dev/mmcblk at offset 0x20000 (i.e. 1K * 128)
+	dd if=${ROOTDIR}/MLO_RC1.img of=/dev/mmcblk1 bs=1K seek=128 
 
-		writeFlag $STATE_0			
-        sync
-        sleep 2
+	writeFlag $STATE_0			
+       	sync
+       	sleep 2
 
-		psplash-write "MSG Wait Auto-rebooting..."
+	psplash-write "MSG Wait Auto-rebooting..."
         echo "new FW files copied. Now auto-rebooting" >> $LOG_FILE
-		sleep 2		
-		reboot -f
+	sleep 2		
+	cd ..
+	umount $ROOTDIR
+
+	reboot -f
         ;;
 esac
 
 
+#EOF

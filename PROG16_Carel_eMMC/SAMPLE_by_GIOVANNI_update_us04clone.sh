@@ -1,0 +1,503 @@
+#!/bin/sh
+
+cd $(dirname $0)
+ROOTDIR=$(pwd)
+
+#
+# PLEASE DO NOT MODIFY THIS FILE IN ANY WAY
+# Using this script after doing so may cause damage to the device
+#
+
+export PATH=$PATH:/bin:/sbin:/usr/bin/
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/lib:/usr/lib
+
+RED_LED=$(find /sys/class/leds/ -name *fault*)
+GREEN_LED=$(find /sys/class/leds/ -name *dl*)
+
+die()
+{
+	MESSAGE=""
+	[ "$1" ] && MESSAGE="$1"
+	echo "Fatal error $MESSAGE !" ; sync
+	cp /mnt/src/lastupdate.log /mnt/src/last_failed_update_`date -u +"%d%m%Y_%H%M%S"`.log
+	sync
+
+	sleep 1
+
+	psplash-write  "MSG ERROR UPDATING!!!
+$MESSAGE
+
+"
+	psplash-write "PROGRESS 100"
+
+	echo 0 > $GREEN_LED/brightness
+
+	while [ "1" ]; do
+		dbus-send --system --print-reply --dest=com.exor.EPAD "/Buzzer" com.exor.EPAD.Buzzer.beep int32:440 int32:100; sleep 1;
+	done
+
+	# should never reach this point
+	exit -1
+}
+
+testPartition()
+{
+	mkdir -p /mnt/tmp || die "Error creating temp dir"
+	mount $1 /mnt/tmp
+	umount $1 || die "Failed umount test of $1"
+	rm -rf /mnt/tmp
+	echo "Mount test passed for partition $1"
+}
+
+md5check()
+{
+	[ -e $1.md5 ] || die "MD5 `basename $1`.md5 not found"
+	# the md5 file format is md5<space><space>file , 2 spaces!!
+	[ -n "`cat $1.md5 | cut -d ' ' -f 1`" ] || die "`basename $1` MD5 mismatch"
+	md5sum $1 | grep -i "`cat $1.md5 | cut -d ' ' -f 1`" || die "`basename $1` MD5 mismatch"
+}
+
+untar()
+{
+	if [[ -e $1.tar ]]; then
+ 		tar xpf $1.tar || die "Errors untarring `basename $1.tar`"
+	elif [[ -e $1.tar.gz ]]; then
+		tar xzpf $1.tar.gz || die "Errors untarring `basename $1.tar.gz`"
+	else
+		die "File $1.tar.gz not found!"
+	fi
+}
+
+untar_nop()
+{
+	if [[ -e $1.tar ]]; then
+ 		tar --no-same-permissions --no-same-owner -xf $1.tar || die "Errors untarring `basename $1.tar`"
+	elif [[ -e $1.tar.gz ]]; then
+		tar --no-same-permissions --no-same-owner -xzf $1.tar.gz || die "Errors untarring `basename $1.tar.gz`"
+	else
+		die "File $1.tar.gz not found!"
+	fi
+}
+
+rmall()
+{
+	echo "FS cleanup..."
+	rm -rf * .* etc/* ; sync
+	echo
+	echo "========================================"
+	echo "Free space after cleanup : `df $(pwd)`" ;
+	echo "----------------------------------------"
+	find . ;
+	echo "========================================"
+	echo
+	sync
+}
+
+formatPartition()
+{
+	echo "Format $1 as $2" ; sync
+	umount $1 2> /dev/null
+	mke2fs -m 1 -T ext4 -L $2 $1 || die "Error formatting $2"
+	sync
+}
+
+updatePartition()
+{
+	TGZNAME="$1"
+	CNAME="$2"
+	PART="$3"
+	PARTLABEL="$4"
+	MOUNTPOINT="$5"
+	PROGRESS="$6"
+
+	if [ -e $ROOTDIR/$TGZNAME.tar.gz -o -e $ROOTDIR/$TGZNAME.tar ]; then
+		[ -e $PART ] || die "Partition $PART not found"
+		testPartition $PART
+
+		psplash-write "PROGRESS $PROGRESS"
+
+		echo "Updating $CNAME..." ; sync
+
+		psplashMSG "Updating $CNAME\n
+Checking MD5...
+"
+		if [ -e $ROOTDIR/$TGZNAME.tar.gz ] ; then
+			md5check $ROOTDIR/$TGZNAME.tar.gz
+		else
+			md5check $ROOTDIR/$TGZNAME.tar
+		fi
+
+		psplashMSG "Updating $CNAME\n
+Formatting $CNAME...
+"
+		formatPartition $PART $PARTLABEL
+
+		psplashMSG "Updating $CNAME\n
+Writing new $CNAME...
+"
+		pushd .
+		mkdir -p $MOUNTPOINT
+		mount $PART $MOUNTPOINT || die "Failed mounting $PART"
+		cd $MOUNTPOINT || die "Failed entering $CNAME folder"
+		untar $ROOTDIR/$TGZNAME
+		psplashMSG "Updating $CNAME\n
+Syncing...
+"
+		popd
+		umount $PART
+		sync
+		echo "$CNAME update successfull!"
+		sync
+
+		return 0
+	fi
+
+		return 1
+}
+
+updateSplash() {
+	PART=/dev/mmcblk1p1
+	MOUNTPOINT=/mnt/factory
+	if [ -e $ROOTDIR/splashimage.bin ]; then
+		[ -e $PART ] || die "Partition $PART not found"
+		testPartition $PART
+		echo "Updating splashimage..." ; sync
+
+		pushd .
+		mkdir -p $MOUNTPOINT
+		mount $PART $MOUNTPOINT || die "Failed mounting $PART"
+		cd $MOUNTPOINT || die "Failed entering $CNAME folder"
+		cp $ROOTDIR/splashimage.bin .
+
+		popd
+		umount $PART
+		sync
+		echo "splashimage update successfull!"
+		sync
+	fi
+}
+
+clearPartition()
+{
+	CNAME="$1"
+	PART="$2"
+	PARTLABEL="$3"
+	MOUNTPOINT="$4"
+	PROGRESS="$5"
+	[ -e $PART ] || die "Partition $PART not found"
+	testPartition $PART
+	echo "Clearing $CNAME..." ; sync
+	psplashMSG "Clearing $CNAME...\n
+
+"
+	psplash-write "PROGRESS $PROGRESS"
+
+	formatPartition $PART $PARTLABEL
+	pushd .
+	mkdir -p $MOUNTPOINT
+	mount $PART $MOUNTPOINT || die "Failed mounting $PART"
+	cd $MOUNTPOINT || die "Failed entering $CNAME folder"
+	psplashMSG "Clearing $CNAME\n
+Syncing...
+"
+	popd
+	umount $PART
+	sync
+	echo "$CNAME clearing successfull!"
+	sync
+}
+
+setupSettings()
+{
+	MAINOSPART="$1"
+	MAINOSMOUNTPOINT="$2"
+	ETCPART="$3"
+	ETCMOUNTPOINT="$4"
+
+	mkdir -p $MAINOSMOUNTPOINT
+	mkdir -p $ETCMOUNTPOINT
+
+	mount $MAINOSPART $MAINOSMOUNTPOINT || die "Failed mounting $MAINOSPART"
+	mount $ETCPART    $ETCMOUNTPOINT    || die "Failed mounting $ETCPART"
+
+	cp -rp $MAINOSMOUNTPOINT/etc/*	$ETCMOUNTPOINT/
+	mkdir -p $ETCMOUNTPOINT/EPAD
+	touch $ETCMOUNTPOINT/EPAD/system.ini
+	touch $ETCMOUNTPOINT/configured
+	{
+		echo "# Generated by /etc/init.d/networking"
+		echo "auto lo"
+		echo "iface lo inet loopback"
+		for interface in /sys/class/net/eth*; do
+			IFACE=`basename $interface`;
+			echo auto $IFACE;
+			echo iface $IFACE inet dhcp
+		done
+		} > $ETCMOUNTPOINT/network/interfaces
+	sync
+
+	umount $MAINOSPART
+	umount $ETCPART
+}
+
+psplashMSG () {
+# YELLOW TEXT
+    echo -ne "\033[1;33m"
+    echo "$1"
+    echo -ne "\033[00m"
+#	echo "MSG  ## $UPDATE_STEP ##
+#$( echo -e $1 )
+#
+#"
+}
+
+echo
+echo
+echo
+echo
+echo "========================================"
+echo "Update process starting at `date -u`"
+
+[ "$1" = "clone" ] && clone_mode=1
+[ -e $ROOTDIR/backup ] && backup=1
+
+BACKUP_DIR="/mnt/src/backup_$( date -u +'%d%m%Y_%H%M%S' )"
+
+# On both green and red LED
+echo 1 > $GREEN_LED/brightness
+echo 1 > $RED_LED/brightness
+
+# start dbus
+mkdir -p /var/run/dbus
+/etc/init.d/dbus-1 start
+
+# beep
+dbus-send --system --print-reply --dest=com.exor.EPAD "/Buzzer" com.exor.EPAD.Buzzer.beep int32:880 int32:1000
+
+rotation=0
+[ -e /rotation ] && read rotation < /rotation
+
+chvt 1
+#psplash --notouch --angle $rotation &
+
+# starts a debug sshd session
+(ifconfig eth0 10.10.10.207 up ; mount -t devpts devpts /dev/pts ; /etc/init.d/sshd start ) &
+
+# sleep required to allow psplash starting and setting up display
+sleep 1
+echo "******************* 14 *******************"
+psplash-write "MSG Starting system update 3 ..."
+psplash-write "PROGRESS 1"
+sleep 1
+psplash-write  "MSG Starting system update 2 ..."
+psplash-write "PROGRESS 2"
+sleep 1
+psplash-write  "MSG Starting system update 1 ..."
+psplash-write "PROGRESS 3"
+sleep 1
+
+echo "******************* 15 *******************"
+# Make sure the watchdog is not active
+echo V > /dev/watchdog
+
+# this is hard-code  mounted by psplash to read the splash image and can now be umounted
+umount /dev/mmcblk1p1
+
+echo "Update process starting at `date -u`" sync
+
+echo "======================================="
+echo "Current fs setup:"
+echo "---------------------------------------"
+cat /proc/mounts
+echo "---------------------------------------"
+df
+echo "======================================="
+echo
+echo
+echo
+echo "======================================="
+echo "Running processes:"
+echo "---------------------------------------"
+ps aux
+echo "======================================="
+sync
+
+DRIVE=/dev/mmcblk1
+[ -e $DRIVE ] || "Drive $DRIVE not found!"
+
+# ====================================================================
+#                         UPDATE PROCESS
+# ====================================================================
+UPDATE_STEP="BSP UPDATE"
+
+psplash-write "PROGRESS 0"
+
+if [ -e $ROOTDIR/reformat -o -n "$clone_mode" ] ; then
+	psplashMSG "Reformatting whole machine...\n
+Checking md5...
+"
+	echo "Checking reformat dependencies..."
+	[ -e $ROOTDIR/configos.tar.gz -o -e $ROOTDIR/configos.tar ] || die "configos required after reformatting"
+
+	if [ -e $ROOTDIR/configos.tar.gz ] ; then
+		 md5check $ROOTDIR/configos.tar.gz
+	else
+		 md5check $ROOTDIR/configos.tar
+	fi
+
+	if [ -n "$clone_mode" ]; then
+
+		[ -e $ROOTDIR/mainos.tar.gz -o -e $ROOTDIR/mainos.tar ] || die "mainos required in clone mode"
+		if [ -e $ROOTDIR/mainos.tar.gz ] ; then
+			md5check $ROOTDIR/mainos.tar.gz
+		else
+			md5check $ROOTDIR/mainos.tar
+		fi
+
+		[ -e $ROOTDIR/data.tar.gz -o -e $ROOTDIR/data.tar ] || die "data required in clone mode"
+		if [ -e $ROOTDIR/data.tar.gz ] ; then
+			md5check $ROOTDIR/data.tar.gz
+		else
+			md5check $ROOTDIR/data.tar
+		fi
+
+		[ -e $ROOTDIR/factory.tar.gz -o -e $ROOTDIR/factory.tar -o -e $ROOTDIR/splashimage.bin ] || die "factory required in clone mode"
+		if [ -e $ROOTDIR/factory.tar.gz ] ; then
+			md5check $ROOTDIR/factory.tar.gz
+		elif [ -e $ROOTDIR/factory.tar ] ; then
+			md5check $ROOTDIR/factory.tar
+		fi
+
+	fi
+
+	# Erase any existent partition table and get device size
+	psplashMSG "Reformatting whole machine...\n
+Erasing partitions...
+"
+
+	cat /proc/mounts
+
+	echo
+	echo "Erasing any existing partition and get media size..."
+	dd if=/dev/zero of=$DRIVE bs=1024 count=1024 || die "Error erasing partitions..."
+	SIZE=`fdisk -l $DRIVE | grep Disk | awk '{print $5}'`
+	echo DISK SIZE - $SIZE bytes
+	CYLINDERS=$(( $(( $SIZE )) / 255 / 63 /512 ))
+	echo CYLINDERS - $CYLINDERS
+
+	# Disk partitioning
+	echo
+	echo "Media partitioning..."
+	PRINTSIZE=$(($SIZE/1000/1000/1000))
+	psplashMSG  "Reformatting whole machine...\n
+Partitioning $PRINTSIZE GB...
+"
+	echo "$PRINTSIZE GB EMMC detected: creating partitions for Linux only..."
+	{ 
+		echo 2,18,L
+		echo 20,65,L 
+		echo 85,65,L 
+		echo 150,,E
+		echo 150,10,L
+		echo 160,,L
+	} | sfdisk --force -D -H 255 -S 63 -C $CYLINDERS $DRIVE || die "Error partitioning $PRINTSIZE GB"
+
+	psplashMSG "Reformatting whole machine...\n
+Formatting...
+"
+	# Partitions formatting
+	echo
+	echo "Partitions formatting..."
+	mke2fs -m 1 -T ext4 -L "factory" $DRIVE'p1'
+	mke2fs -m 1 -T ext4 -L "configos" $DRIVE'p2'
+	mke2fs -m 1 -T ext4 -L "mainos" $DRIVE'p3'
+	mke2fs -m 1 -T ext4 -L "etc" $DRIVE'p5'
+	mke2fs -m 1 -T ext4 -L "data" $DRIVE'p6'
+
+	# Clear FRAM
+	[ -e /dev/fram ] && dd if=/dev/zero of=/dev/fram bs=1024 count=64
+fi
+
+dd if=$ROOTDIR/flash.bin of=$DRIVE bs=1K seek=33
+sync
+
+updatePartition mainos mainos /dev/mmcblk1p3 mainos /mnt/m 30
+[ "$?" -eq "0" ] && clearPartition etc /dev/mmcblk1p5 etc /mnt/e 35
+
+##############################
+# Write defaults settings!!! #
+##############################
+setupSettings /dev/mmcblk1p3 /mnt/m /dev/mmcblk1p5 /mnt/e
+
+updatePartition configos configos /dev/mmcblk1p2 configos /mnt/c 60
+updatePartition etc "etc data" /dev/mmcblk1p5 etc /mnt/e 82
+updatePartition factory "factory data" /dev/mmcblk1p1 factory /mnt/f 85
+updatePartition data "user data" /dev/mmcblk1p6 data /mnt/d 90
+
+# If data partition changed, clear FRAM
+if [ "$?" -eq "0" -a -e /dev/fram ]; then
+	echo
+    echo Clearing FRAM...
+    dd if=/dev/zero of=/dev/fram bs=1024 count=64
+fi
+
+updateSplash
+
+
+
+echo "Update complete, checking partitions"
+psplashMSG "Update complete, checking partitions...\n
+"
+
+psplash-write "PROGRESS 99"
+
+# Ignore fsck time related errors
+echo '[options]' > /etc/e2fsck.conf
+echo 'broken_system_clock = 1' >> /etc/e2fsck.conf
+
+# fsck linux partitions
+for i in 1 2 3 5 6 ; do
+	[ -e /dev/mmcblk1p$i ] || continue ;
+	umount /dev/mmcblk1p$i 2> /dev/null
+	head /dev/mmcblk1p$i > /dev/null || continue ;
+	fsck.ext4 -fp /dev/mmcblk1p$i
+	if (($? > 3)); then
+		if (($i < 8)); then
+			die "Unrecoverable error in partition /dev/mmcblk1p$i"
+		else
+			echo "Unrecoverable error in partition /dev/mmcblk1p$i"	# extended partitions might be unreachable in old kernels
+		fi
+	fi
+	sync
+done
+
+
+echo "Update complete, autorebooting..." ; sync
+psplash-write  "MSG Process completed succesfully!
+Unplug the USB stick and
+power off the machine
+"
+
+psplash-write "PROGRESS 100"
+
+# reboot countdown
+dbus-send --system --print-reply --dest=com.exor.EPAD "/Buzzer" com.exor.EPAD.Buzzer.beep int32:440 int32:100; sleep 1;
+dbus-send --system --print-reply --dest=com.exor.EPAD "/Buzzer" com.exor.EPAD.Buzzer.beep int32:440 int32:100; sleep 1;
+dbus-send --system --print-reply --dest=com.exor.EPAD "/Buzzer" com.exor.EPAD.Buzzer.beep int32:440 int32:100; sleep 1;
+
+# /etc/init.d/dbus-1 stop
+# killall EPAD
+# killall psplash
+
+sync
+psplash-write  "MSG Update complete."
+echo "Update complete"
+sync
+
+# On green LED
+echo 1 > $GREEN_LED/brightness
+echo 0 > $RED_LED/brightness
+
+while [ "1" ]; do
+sleep 1
+done
